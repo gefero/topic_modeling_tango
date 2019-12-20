@@ -1,13 +1,13 @@
 ---
 title: "Aplicación de Procesamiento de Lenguaje Natural en las ciencias sociales. Detección automática de tópicos en letras de tango"
 author: "Germán Rosati (CONICET - IDAES/UNSAM - PIMSA)"
-#output: html_notebook
-#output : word_document
+output: html_notebook
+#output: word_document
 #output: html_document
-output: 
-        pdf_document:
-                keep_tex: true
-                latex_engine: xelatex
+#output: 
+#        pdf_document:
+#                keep_tex: true
+#                latex_engine: xelatex
 csl: apa.csl
 bibliography: biblio.bib
 ---
@@ -131,7 +131,7 @@ De esta forma, en términos metodológicos es posible identificar tres rasgos de
 
 A los efectos de ilustrar un caso de aplicación de este tipo de técnicas, se presentará un flujo de trabajo clásico aplicado a la detección de tópicos en un corpus textual de letras de tango. El corpus fue construido a partir de un proceso de web scraping^[El _scraping_-literalmente, “raspado” o “rascado” consiste en la descarga y formateo de la información disponible en sitios web, información que generalmente no se encuentra en condiciones de ser trabajada de forma estadística [@mitchell].] Se descargaron todas las letras de tango disponibles en el sitio [todo tango](www.todotango.com). 
 
-Además de las letras se descargó información accesoria sobre el tango en cuestión. Para ello se confeccionaron dos web crawlers sencillos^[El código puede ser consultado en nuestro repositorio http://www.github/gefero.]. 
+Además de las letras se descargó información accesoria sobre el tango en cuestión. Para ello se confeccionaron dos web crawlers sencillos^[El código puede ser consultado en nuestro repositorio https://github.com/gefero/tango_scrap. A su vez, todo el material de replicación para el análisis de tópicos puede ser encontrado en el siguiente repositorio https://github.com/gefero/topic_modeling_tango]. 
 
 El corpus final consiste en alrededor de 5700 letras de tango, agrupadas en un dataset con la siguiente estructura:
 
