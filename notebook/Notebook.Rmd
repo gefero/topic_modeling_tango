@@ -1,8 +1,8 @@
 ---
 title: "Aplicación de Procesamiento de Lenguaje Natural en las ciencias sociales. Detección automática de tópicos en letras de tango"
 author: "Germán Rosati (CONICET - IDAES/UNSAM - PIMSA)"
-output: html_notebook
-#output: word_document
+#output: html_notebook
+output: word_document
 #output: html_document
 #output: 
 #        pdf_document:
@@ -91,9 +91,9 @@ lda <- lda_list[[8]]
  
 ## Introducción
 
-Es una obviedad decirlo, pero el lenguaje es parte integrante de la sociedad. Independientemente de posiciones idealistas o materialistas al respecto, lo cierto es que buena parte de las interacciones a lo largo y a lo ancho de la estructura social, se encuentran mediadas por el lenguaje y tiene como producto una gran cantidad de "textos"", muchos de los cuales no son escritos, pero muchos otros sí.
+Independientemente de posiciones idealistas o materialistas al respecto, lo cierto es que buena parte de las interacciones a lo largo y a lo ancho de la estructura social, se encuentran mediadas por el lenguaje y tiene como producto una gran cantidad de "textos"", muchos de los cuales no son escritos, pero muchos otros sí.
 
-Desde las ciencias sociales se ha hecho énfasis en esta idea, llegando a extremos teórico-metodológicos y afirmaciones temerarias tales como que la sociedad ES un texto o que la cultura puede ser interpretada de la misma forma y con las mismas herramientas con que se aborda un texto literario. Uno de los referentes más relevantes de de la antropología interpretativa escribe en uno de sus textos más famosos:
+Desde las ciencias sociales se ha hecho énfasis en esta idea, llegando a extremos teórico-metodológicos y afirmaciones temerarias tales como que la sociedad es un texto o que la cultura puede ser interpretada de la misma forma y con las mismas herramientas con que se aborda un texto literario. Uno de los referentes más relevantes de la antropología interpretativa escribe en uno de sus textos más famosos:
 
 > The culture of a people is an ensemble of texts, themselves ensembles, which the anthropologist strains to read over the shoulders of those to whom they properly belong. [@geertz]^["La cultura de un pueblo es un ensamble de textos, los cuales son emsables a su vez, y que los antropólogos tratan de leer sobre los hombros de aquellos a los que les pertenecen."]
 
@@ -102,9 +102,7 @@ fuera un texto, lo cual pone en un lugar central a la operación de “interpret
 
 Un segundo punto a considerar en este tipo de abordajes se vincula al problema de la escala. Existen algunas aproximaciones basadas en la tradición hermenéutica que buscan llegar a un grado más alto de sistematización de los procesos y etapas del análisis. El Qualitative Content Analysis [@fang], por ejemplo, busca sistematizar las diversas etapas y decisiones metodológicas en el proceso de análisis de datos no estructurados textuales. El problema que surge aquí es la escala: la transcripción y codificación manual de corpus textuales limita fuertemente el tamaño de los corpus a analizar.
 
-Las técnicas _Text Mining_ y _Natural Language Processing_ abordadas en este artículo (y muchas otras que no son mencionadas) pueden ser de utilidad a las ciencias sociales dado que permiten realizar una sistematización (y, eventualmente, lograr un cierto grado de automatización) de los diversos pasos de preprocesamiento de un texto y habilitan la aplicación de métodos cuantitativos de análisis para una amplia diversidad de tareas (clasificación de textos, detección de temas y tópicos, etc.).
-
-También abren la posibilidad de escalar el trabajo de forma eficiente. En lugar de leer cada uno de los textos de un corpus, tarea que rápidamente se vuelve imposible, las técnicas de minería de texto permiten analizar de forma automática corpus de escalas notablemente grandes.
+Las técnicas _Text Mining_ y _Natural Language Processing_ (NLP) abordadas en este artículo (y muchas otras que no son mencionadas) pueden ser de utilidad a las ciencias sociales dado que permiten realizar una sistematización (y, eventualmente, lograr un cierto grado de automatización) de los diversos pasos de preprocesamiento de un texto y habilitan la aplicación de métodos cuantitativos de análisis para una amplia diversidad de tareas (clasificación de textos, detección de temas y tópicos, etc.). También abren la posibilidad de escalar el trabajo de forma eficiente. En lugar de leer cada uno de los textos de un corpus, tarea que rápidamente se vuelve imposible, las técnicas de minería de texto permiten analizar de forma automática corpus de escalas notablemente grandes.
 
 El presente trabajo tiene como objetivo general discutir algunas aproximaciones metodológicas al análsis automático de textos y presentar algunas de las potencialidades que tienen en el trabajo cotidiano de las ciencias sociales a partir de su aplicacion a un caso de estudio concreto: el análisis de los temas en un corpus de 5.600 letras de tango. Particularmente, nos centraremos en la discusión de algunos aspectos del flujo de trabajo para el análisis de texto y en la aplicación y discusión de una técnica específica para resolución de un problema general del Procesamiento de Lenguaje Natural: el modelo _Latent Dirichlet Allocation_ (LDA) para la detección de tópicos en un corpus.
 
@@ -146,8 +144,7 @@ Al observar el campo _Letra_ (el núcleo del análisis), se nota que se trata de
 
 ### 3.1 Modelo _BoW_ (_Bag of words_)
 
-Para llegar a esa representación estructurada^[Vale destacar que el flujo de trabajo descripto a continuación es uno posible -y bastante común-, pero de ninguna manera el único, ni necesariamente el "mejor" en términos absoltos. El flujo y las operaciones contenidas en el mismo deberán ser revisadas para cada problema particular [@grimmer].], será necesario pensar en una estructura de datos acorde a las necesidades del análisis. En primer lugar, la unidad de análisis serán los tangos individuales, por lo cual, cada fila en la matriz final será un tango. A su vez, la representación a utilizar será la siguiente: cada columna consistirá en un término $t$ del vocabulario general $V$ del corpus $C$. Finalmente, cada celda estará constituida por el conteo crudo de ocurrencias de cada palabra (columna) en cada documento (fila). Esta representación es la que se denomina _Bag of Words_ o “bolsa de palabras” y se dispone en una Matriz de
-Frecuencias de Términos ($TFM$, por sus siglas en inglés).
+Para llegar a esa representación estructurada^[Vale destacar que el flujo de trabajo descripto a continuación es uno posible -y bastante común-, pero de ninguna manera el único, ni necesariamente el "mejor" en términos absolutos. El flujo y las operaciones contenidas en el mismo deberán ser revisadas para cada problema particular [@grimmer].], será necesario pensar en una estructura de datos acorde a las necesidades del análisis. La unidad de análisis serán los tangos individuales, por lo cual, cada fila en la matriz final será un tango. A su vez, la representación a utilizar será la siguiente: cada columna consistirá en un término $t$ del vocabulario general $V$ del corpus $C$. Dada celda estará constituida por el conteo crudo de ocurrencias de cada palabra (columna) en cada documento (fila). Esta representación es la que se denomina _Bag of Words_ o “bolsa de palabras” y se dispone en una Matriz de Frecuencias de Términos ($TFM$, por sus siglas en inglés).
 
 Por ejemplo, para dos de los tangos analizados esta matriz tomaría la siguiente forma:
 
@@ -163,7 +160,7 @@ Puede verse que al construir esta matriz la información sobre el orden de las p
 
 Debe tenerse en cuenta que esta matriz se construye sobre el vocabulario $V$, o sea el total de términos únicos sobre el corpus $C$. Así, $V$ incluiría a priori signos de puntuación, diferentes conjugaciones de verbos, sustantivos en singular o plural, etc. Esto hace que el vocabulario “crudo” de $C$ tienda a ser demasiado grande. Es por ello que, en la etapa de preprocesamiento del texto se utilizan algunas técnicas para reducir la complejidad y la extensión de $V$.
 
-Un primer paso simple es la eliminación de lo que suelen  denominarse _stopwords_, básicamente artículos, preposiciones, conectores, etc. La lógica detrás de esta eliminación es que estas palabras se encuentran en todos los documentos $d$ de $C$ por lo cual aportan poca información acerca de su contenido.
+Un paso simple es la eliminación de lo que suelen  denominarse _stopwords_, básicamente artículos, preposiciones, conectores, etc. La lógica detrás de esta eliminación es que estas palabras se encuentran en todos los documentos $d$ de $C$ por lo cual aportan poca información acerca de su contenido.
 
 **Tabla 3. Ejemplo de matriz de frecuencia de términos sin stopwords**
 
@@ -179,17 +176,17 @@ A partir de la eliminación de las _stopwords_ se obtiene en la tabla 3 una repr
 
 ### 3.2 Normalización de términos: _stemming_ y lematización
 
-El paso siguiente consiste en la reducción de la diversidad de los términos $t$ de $V$ manteniendo su sentido. Existen dos técnicas básicas para lograr este resultado.
+El paso siguiente consiste en la reducción de la diversidad de los términos $t$ de $V$ manteniendo su sentido. Existen dos técnicas básicas para lograr este resultado:
 
-1. _Stemming_: remueve las declinaciones de las palabras con el objetivo de reducir la dimensionalidad de $V$. Aquellas palabras que remiten a un mismo concepto básico son reducidos a la misma raíz. Por ejemplo, familias, familia y familiar son reducidas a familia.
-2. Lematización: Tiene el mismo objetivo y lógica que el _stemming_. La diferencia es que usa diccionarios, el contexto de las palabras y su función sintáctica para determinar su raíz. Así, logra discernir que mejor y mejorable remiten a la misma raíz bueno.
+1. _stemming_: remueve las declinaciones de las palabras con el objetivo de reducir la dimensionalidad de $V$. Aquellas palabras que remiten a un mismo concepto básico son reducidos a la misma raíz. Por ejemplo, familias, familia y familiar son reducidas a familia
+2. lematización: Tiene el mismo objetivo y lógica que el _stemming_. La diferencia es que usa diccionarios, el contexto de las palabras y su función sintáctica para determinar su raíz. Así, logra discernir que mejor y mejorable remiten a la misma raíz bueno.
 
 La diferencia entre ambas suele ser el tiempo de cómputo. En términos generales, el _stemming_ tiende a ser más rápido, dado que solamente requiere de reglas para truncar las palabras. Existen diferentes algoritmos para varios idiomas (algoritmo Porter, algoritmo Snowball, etc.).
 
 
 ### 3.3 Normalización de conteos
 
-El último paso supone normalizar los valores de las celdas de la TFM Al momento de filtrar los stopwords se buscaba poder eliminar aquellas palabras muy frecuentes en todos los textos. Es posible extender este razonamiento para el resto de los términos de $V$. Así, pueden identificarse dos dimensiones de la frecuencia de dichos términos:
+El último paso supone normalizar los valores de las celdas de la TFM. Al momento de filtrar los stopwords se buscaba poder eliminar aquellas palabras muy frecuentes en todos los textos. Es posible extender este razonamiento para el resto de los términos de $V$. Así, pueden identificarse dos dimensiones de la frecuencia de dichos términos:
 
 1. Un término $t$ es importante si es muy frecuente en un documento $d$ de $C$
 2. A su vez, $t$ es más informativo del contenido de un documento $d$ si está presente en pocos documentos y no en todos los documentos de $C$. 
@@ -215,11 +212,11 @@ $$TF-IDF(t) = \frac{c(t,d)}{\sum_{t \in d} c(t,d)} \times \log \frac{|C|}{df(t)}
 
 Así, valores altos de $TF(t,d)$ y valores altos de $IDF(t)$ -o sea, valores bajos de $DF(t)$- arrojan valores altos de $TF-IDF(t)$. O sea, términos $t$ frecuentes en $d$ y poco frecuentes en $C$.
 
-No obstante, estas operaciones mencionadas, en ciertos casos (como el del corpus en cuestión) suele suceder que el conteo crudo $c(t,c)$ de términos fucione de forma aceptable. En el caso específico de este trabajo, luego de evaluar ambas alternativas se optó por utilizar $c(t, d)$ como métrica en la TFM^[Para una discusión al respecto de estas métricas, puede verse [@wind]]. Para resumir, entonces, el preprocesamiento realizado para este corpus:
+No obstante, estas operaciones mencionadas, en ciertos casos (como el del corpus en cuestión) suele suceder que el conteo crudo $c(t,c)$ de términos fucione de forma aceptable. En el caso específico de este trabajo, luego de evaluar ambas alternativas se optó por utilizar $c(t, d)$ como métrica en la TFM^[Para una discusión al respecto de estas métricas, puede verse Wiedemann [-@wind]]. Para resumir, entonces, el preprocesamiento realizado para este corpus:
 
 1. normalización a minúsculas
 2. eliminación de _stopwords_
-3. elimnación de puntuación y 
+3. eliminación de puntuación y 
 4. eliminación de caracteres extraños y dígitos
 
 
@@ -244,7 +241,7 @@ Así, el objetivo del modelado de tópicos es descubrir de forma automática los
 
 $$p(\beta_{1:K}, \theta_{1:D}, z_{1:D}, w_{1:D}) = \prod_{i=1}^K p(\beta_{i}) \prod_{d=1}^D p(\theta_{d}) (\prod_{n=1}^N p(z_{d,n}|\theta_{d}) p(w_{d,n}|\beta_{1:K}, z_{d,n}))$$
 
-Así, los tópicos están indexados en $\beta_{1:K}$, dónde cada $\beta_{k}$ es una distribución de probabilidad sobre el vocabulario. La proporción de tópicos para el d-ésimo documento están indexadas por $\theta_{d}$, dónde $\theta_{d,K}$ es la proporción del tópico d en el documento $k$. La asignación de tópicos para el documento $d$, está dada por $z_{d}$, donde $z_{d,n}$ es la asignación de tópico para la n-ésima palabra en el documento $d$. Finalmente, las palabras observadas para el documento $d$, son $w_{d}$, donde $w_{d,n}$ es la n-ésima palabra en el documento $d$, que es un elemento del vocabulario fijo.
+Así, los tópicos están indexados en $\beta_{1:K}$, donde cada $\beta_{k}$ es una distribución de probabilidad sobre el vocabulario. La proporción de tópicos para el d-ésimo documento están indexadas por $\theta_{d}$, dónde $\theta_{d,K}$ es la proporción del tópico d en el documento $k$. La asignación de tópicos para el documento $d$, está dada por $z_{d}$, donde $z_{d,n}$ es la asignación de tópico para la n-ésima palabra en el documento $d$. Finalmente, las palabras observadas para el documento $d$, son $w_{d}$, donde $w_{d,n}$ es la n-ésima palabra en el documento $d$, que es un elemento del vocabulario fijo.
 
 Puede verse que existen ciertas dependencias en el modelo: por ejemplo, la asignación de tópicos $z_{d,n}$ depende de la proporción de tópicos por documento $\theta_{D}$. A su vez, la palabra observada $w_{d,n}$ depende de la asignación de tópicos $z_{d,n}$ y todas dependen de los tópicos $\beta_{k}$.
 
@@ -270,9 +267,9 @@ Utilizando LDA se buscó detectar los tópicos más relevantes en el dataset de 
 
 Ahora bien, como se desprende del apartado anterior, uno de los problemas principales es determinar la cantidad de tópicos que se busca detectar. Este problema es análogo al problema de determinación de la cantidad de clusters al aplicar algoritmos de segmentación tales como _K-means_. Es más, en la etapa de preprocesamiento, también se tomaron una serie de decisiones: el tipo de TFM a utilizar y el método de normalización, etc. Es por ello, que sería posible considerar cada una de estas decisiones como un hiperparámetro a evaluar y testear todas las combinaciones posibles de estos hiperparámetros, junto con el parámetro obligatorio referido a la cantidad de tópicos a detectar en el corpus. 
 
-Existen diversas métricas que permiten cuantificar qué tan “bueno” es el número de tópicos definido en términos cuantitativos (log-likelihood, perplexity, etc.). Ahora bien, en general el uso de estas métricas conduce a modelos que logran buena performance estadística pero no necesariamente generan tópicos que sean interpretables, es decir, que tengan algún sentido en términos semánticos. Más bien, tiende a suceder lo contrario.
+Existen diversas métricas que permiten cuantificar qué tan “bueno” es el número de tópicos definido en términos cuantitativos (log-likelihood, perplexity, etc.). En general el uso de estas métricas conduce a modelos que logran buena performance estadística pero no necesariamente generan tópicos que sean interpretables, es decir, que tengan algún sentido en términos semánticos. Más bien, tiende a suceder lo contrario.
 
-En términos generales, un número de tópicos grande tiende a arrojar mejores métricas y tiende a permitir una alta resolución de la estructura latente del corpus. Ahora bien, se ha observado que a medida que medida que el número de tópicos se incrementa, la calidad de los tópicos (en términos de interpretabilidad) tiende a decrecer [@mimno, @chang]. De esta forma, al igual que en muchos otros problemas, complejidad del modelo e interpretabilidad tienden a ir en direcciones contrarias^[Existe otro conjunto de métricas -coherece, topic itrusion, etc..- que se centran en la interpretabilidad [@mimno].]. 
+En términos generales, un número de tópicos grande tiende a arrojar mejores métricas y tiende a permitir una alta resolución de la estructura latente del corpus. No obstante, se ha observado que a medida que que el número de tópicos se incrementa, la calidad de los tópicos (en términos de interpretabilidad) tiende a decrecer [@mimno, @chang]. De esta forma, al igual que en muchos otros problemas, complejidad del modelo e interpretabilidad tienden a ir en direcciones contrarias^[Existe otro conjunto de métricas -coherece, topic itrusion, etc..- que se centran en la interpretabilidad [@mimno].]. 
 
 En el presente ejercicio se intentó buscar $k$ que permitiera identificar tópicos interpretables. En el anexo se presentan algunas de los principales términos para diferentes $k$. Un primer rasgo que puede observarse es que, independientemente de las inicializaciones, existen algunos tópicos que se mantienen:
 
@@ -348,7 +345,7 @@ Por último, restan cuatro tópicos. Dos de ellos (3 y 8) tienen un carácter re
 | 12 | Misc y lunfardo          |
 
 
-Una vez detectados los tópicos podemos estimar para cada documento $d$ del corpus $C$ que proporción presenta de cada uno de los tópicos. A continuación se exponen la composición de tópicos de seis tangos de tres décadas diferentes:
+Una vez detectados los tópicos podemos estimar para cada documento $d$ del corpus $C$ qué proporción presenta de cada uno de los tópicos. A continuación se exponen, a modo de ejemplo, la composición de tópicos de cinco tangos de tres décadas diferentes:
 
 **Gráfico 2. Composición de tópicos según tangos, 1900-2010**
 
@@ -380,13 +377,13 @@ tangos_test %>%
 #             subtitle='Media de la composición de las letras de tango')
 ```
 
-Así, un tango como "Barrio reo", que habla de los recuerdos gratos recuerdos del cantor al retornar a su barrio y de la tristeza que le produce el encuentro con su deterioro ("Hoy te encuentro envejecido"), muestra valores altos en los tópicos _emociones positivas_, _emociones negativas_ y en el que habla sobre el _tango y arrabal_.
+Así, un tango como "Barrio reo", que habla de los gratos recuerdos del cantor al retornar a su barrio y de la tristeza que le produce el encuentro con su deterioro ("Hoy te encuentro envejecido"), muestra valores altos en los tópicos _emociones positivas_, _emociones negativas_ y en el que habla sobre el _tango y arrabal_.
 
 Al mismo tiempo, "Chorra", el tópico predominante es el 12. En efecto, el tango está dedicado y dirigido a una persona (la "chorra" en cuestión) y, al mismo tiempo, utiliza una buena cantidad de términos del lunfardo ("afanaste", "chorra", "cachaban", "gil").
 
 El tango "Garúa" muestra una caminata del narrador bajo la llovizna y pinta un cuadro lúgubre y oscuro ("sobre la calle la hilera de focos lustra el asfalto con luz mortecina") mientras el caminante recuerda a la mujer que, presumiblemente se fue. Es por eso que las _emociones negativas_ y las _imágenes climáticas_ aparecen con fuerza en este tango.
 
-"Malena" nos habla (en tercera persona) de una cantante de tangos que pasó por desamores, que parece tener la bebida fácil y que "canta el tango como ninguna". Esto se corresponde con la composición de tópicos detectada: _emociones negativas_, _tango y arrabal_ e _imágenes climáticas_ ("tono oscuro", "el frío del último encuentro", "tus manos son palomas que sienten frío").
+"Malena" nos habla (en tercera persona) de una cantante de tangos que pasó por desamores, que parece tener cierta predisposición a la bebida y que "canta el tango como ninguna". Esto se corresponde con la composición de tópicos detectada: _emociones negativas_, _tango y arrabal_ e _imágenes climáticas_ ("tono oscuro", "el frío del último encuentro", "tus manos son palomas que sienten frío").
 
 Por úlimo, "Mi Buenos Aires querido", nos habla de la ciudad, la nostalgia del narrador y la esperanza del retorno. Esto se corresponde con los tópicos detectados: _ciudad_, _emociones negativas_, _emociones positivas_ y _tiempo y recuerdos_.
 
@@ -417,11 +414,11 @@ Este punto es interesante porque toca algunas de las discusiones dentro del camp
 
 > “el tango, como hemos visto, empezó, surge de la milonga, y es al principio un baile valeroso y feliz. Y luego, el tango va languideciendo y entristeciéndose..."
 
-De esta forma, puede verse que esta hipótesis parece ser corroborada por la información construida^[En el mismo texto, Borges [-@borges] discute sobre las causas de dicho cambio: explora hipótesis cuasi-sociológicas sobre la influencia de negra, de la influencia italiana e hipótesis musicológicas, tales como la importancia de la introducción del bandoneón.].
+De esta forma, puede verse que esta hipótesis parece ser corroborada por la información construida^[En el mismo texto, Borges [-@borges] discute sobre las causas de dicho cambio: explora hipótesis cuasi-sociológicas sobre la influencia negra, la italiana y otras hipótesis musicológicas, tales como la importancia de la introducción del bandoneón.].
 
 A partir de las series anteriores podrían plantearse preguntas que interroguen sobre la vinculación existente entre éstos cambios en los temas del tango u los procesos de desarrollo y expansión del capitalismo en Argentina y/o a los procesos de migración rural-urbana. 
 
-Por úlitmo, y para mostrar una última posible aplicación, podemos calcular la composición promedio de los diferentes tópicos en cada autor de tango. A continuación, desplegamos la composición de los cinco autores con mayor cantidad de letras en el dataset.
+También es posible calcular la composición promedio de los diferentes tópicos en cada autor de tango. A continuación, desplegamos la composición de los cinco autores con mayor cantidad de letras en el dataset.
 
 
 **Gráfico 5. Composición de tópicos según autores, 1900-2010. Media de la composición de las letras de tango**
@@ -449,9 +446,9 @@ aggregate(doc_topics,
         theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-Así, por ejemplo, los temas predominantes de Cadícamo parecen ser el lunfardo y las emociones negativas. Esto contrasta con Homero Manzi, quien parece utilizar en mayor medida las imágenes climaticas (y también las emoicones negativas). 
+Así, por ejemplo, los temas predominantes de Cadícamo parecen ser el lunfardo y las emociones negativas. Esto contrasta con Homero Manzi, quien parece utilizar en mayor medida las imágenes climáticas (y también las emociones negativas). 
 
-De esta forma, podría pensarse en construir una matriz de distancias para cada autor en función de la composición promedio de sus tópcios, con el objetivo de encontrar autores que utilizan temas similares ^[De forma análoga podría construirse una matriz a nivel de tango y buscar los tangos que hablan de tópicos similares.].
+Finalmente, podría pensarse en construir una matriz de distancias para cada autor en función de la composición promedio de sus tópcios, con el objetivo de encontrar autores que utilizan temas similares ^[De forma análoga podría construirse una matriz a nivel de tango y buscar los tangos que hablan de tópicos similares.].
 
 
 **Gráfico 6. Distancias en la composición de tópicos según autores, 1900-2010. Media de la composición de las letras de tango**
@@ -480,29 +477,27 @@ aggregate(doc_topics,
 
 ```
 
-De esta forma, puede verse por ejemplo, que Celedonio Flores y Homero Manzi parece ser de los que mayor similutdes tienen en relación a los tópicos que utilizan. Algo parecido pasa con Enrique Dizeo y José María Contursi, por un lado y con Ernesto Pierro por el otro.
+De esta forma, puede verse por ejemplo, que Celedonio Flores y Homero Manzi parecen ser de los que mayor similitudes tienen en relación a los tópicos que utilizan. Algo parecido pasa con Enrique Dizeo y José María Contursi, por un lado y con Ernesto Pierro por el otro.
 
 
 ## 6. Resultados y discusión
 
-En el presente trabajo se buscó presentar una aproximación metodológica posible para el análisis automático de textos. A partir de la aplicación de una técnica de detección de tópicos (LDA) sobre un dataset de 5.600 letras de tango. A su vez, se presentó un flujo de trabajo posible para dicho análisis y se discutieron algunas técnicas para el preprocesmaiento del texto.
+En el presente trabajo se buscó presentar una aproximación metodológica posible para el análisis automático de textos a partir de la aplicación de una técnica de detección de tópicos (LDA) sobre un dataset de 5.600 letras de tango. A su vez, se presentó un flujo de trabajo posible para dicho análisis y se discutieron algunas técnicas para el preprocesamiento del texto.
 
-De esta forma, fue posible estimar, mediante la técnica de topic modeling LDA, los principales temas del tango. Así, el uso de emociones positivas y negativas, imágenes de la ciudad, sobre el tango y el arrabal, sobre el campo y la gauchesca, sobre la temporalidad y la memoria, entre otros, aparecían como los más importantes. Al mismo tiempo, fue posible validar los tópicos seleccionando algunos tangos y analizando sus letras y su correspondencias con los tópicos estimados.
+De esta forma, fue posible estimar, mediante la técnica de topic modeling LDA, los principales temas del tango. Así, el uso de emociones positivas y negativas, imágenes de la ciudad, sobre el tango y el arrabal, sobre el campo y la gauchesca, sobre la temporalidad y la memoria, entre otros, aparecían como los más importantes. Al mismo tiempo, fue posible validar los tópicos a partir de la selección de algunos tangos y del análisis de sus letras buscando su correspondencias con los tópicos estimados.
 
-Quizás uno de las posibilidades analíticas más interesantes fue la de poder analizar la evolución temporal de los tópicos y, eventualmente, plantear hipótesis sobre la vinculación con procesos m
+Quizás uno de las posibilidades analíticas más interesantes fue la de poder visualizar la evolución temporal de los tópicos y, eventualmente, plantear hipótesis sobre la vinculación con procesos más generales y vinculados a otras dimensiones analíticas por fuera de las determinaciones internas del género tango (procesos vinculados a los cambios en la estructura económica, migratorios, etc.).
 
 Finalmente, fue posible analizar las diferencias (distancias) entre los tópicos utilizados por diferentes autores.
 
-Ahora bien, más allá de los resultados del ejercicio propuesto (que tienen como objetivo más mostrar un caso de uso de la herramienta que agotar las determinaciones del objeto en cuestión), el trabajo busca mostrar las potencialidades que este tipo de técnicas tienen para la investigación en ciencias sociales. Así, con una herramienta que permita analizar con un corpus amplio y de forma sistemática la evolución de los temas del tango (u otros géneros), sería posible vincular analítica y metodológicamente la dimensión cultural con otras esferas de la estructura social^[Como hemos mencionado más arriba, uno de los supuestos de LDA en su versión básica, es que los tópicos preexisten a los textos y son constantes en el tiempo. Se trata de un supuesto fuerte para un análisis temporal. Es por ello que existen otras versiones de modelado de tópicos que permiten flexibilizar estos supuestos. _Dynamic topic modeling_, por ejemplo [@blei1].].
+Ahora bien, más allá de los resultados del ejercicio propuesto (que tienen como objetivo más mostrar un caso de uso de la herramienta que agotar las determinaciones del objeto en cuestión), el trabajo busca mostrar las potencialidades que este tipo de técnicas tienen para la investigación en ciencias sociales. Así, con una herramienta que permita analizar con un corpus amplio y de forma sistemática la evolución de los temas del tango (u otros géneros), sería posible vincular analítica y metodológicamente la dimensión cultural con otras esferas de la estructura social^[Como hemos mencionado más arriba, uno de los supuestos de LDA en su versión básica, es que los tópicos preexisten a los textos y son constantes en el tiempo. Se trata de un supuesto fuerte para un análisis temporal. Es por ello que existen otras versiones de modelado de tópicos que permiten flexibilizar estos supuestos: _Dynamic topic modeling_, por ejemplo [@blei1].].
 
-Al mismo, la detección de tópicos mediante LDA ha sido utilizada en los últimos tiempos al análisis literario [@jockers], al estudio de comunicados políticos [@grimmer2], al estudio de medios [@wind, @blei2], al estudio de temas en leyes y proyectos [@blei3], por nombrar algunas aplicaciones relevantes.
+Al mismo, la detección de tópicos ha sido utilizada en los últimos tiempos para el análisis literario [@jockers], el estudio de comunicados políticos [@grimmer2], el estudio de medios [@wind, @blei2], el estudio de temas en leyes y proyectos [@blei3], por nombrar algunas aplicaciones relevantes.
 
-En efecto, sus principales ventajas radican en su escalabilidad y replicabilidad: utilizando las técnicas de análisis cualitativo de textos "tradicionales", es posible lograr gran profundidad analítica pero sobre corpus más bien pequeños o medianos y escasamente replicables. Así, los trabajos mencionados tenían una escala más bien pequeña: alrededor de 30 letras de tango. La excepción es el trabajo de [@canton]. El proceso de detección de tópicos encarado en el presente trabajo procesó y analizó una base de datos de alrededor de 6.200 letras de tango.
+En efecto, sus principales ventajas radican en su escalabilidad y replicabilidad: utilizando las técnicas de análisis cualitativo de textos "tradicionales", es posible lograr gran profundidad analítica pero sobre corpus más bien pequeños o medianos y escasamente replicables. Así, los trabajos mencionados tenían una escala más bien pequeña: alrededor de 30 letras de tango. La excepción es el trabajo de Cantón [-@canton]. El proceso de detección de tópicos encarado en el presente trabajo procesó y analizó una base de datos de alrededor de 6.200 letras de tango.
 
-A su vez, el uso de técnicas automáticas de NLP no implica un desplazamiento de los enfoques tradicionales. Un buen ejemplo es el trabajo de [@baumer], en el que se comparan los resultados obtenidos utilizando dos métodos de análisis sobre un mismo corpus de datos: generación de categorías utilizando la metodología de la _Grounded Theory_ y detección de tópicos utilizando LDA. Los resultados sugieren tanto una coherencia como una complementariedad entre los resultados de ambos métodos.
+A su vez, el uso de técnicas automáticas de NLP no implica un desplazamiento de los enfoques tradicionales. Un buen ejemplo es el trabajo de Baumer y otros [-@baumer], en el que se comparan los resultados obtenidos utilizando dos métodos de análisis sobre un mismo corpus de datos: generación de categorías utilizando la metodología de la _Grounded Theory_ y detección de tópicos utilizando LDA. Los resultados sugieren tanto una coherencia como una complementariedad entre los resultados de ambos métodos.
 
-
-# Bibliografía
 
 # Anexo - Tablas con los primeros 8 términos para estimación de tópicos con diferentes $k$.
 
@@ -530,3 +525,5 @@ knitr::kable(terms(lda_list[[12]],8) %>% t() %>% as_tibble() %>% mutate(topic=pa
 knitr::kable(terms(lda_list[[22]],8) %>% t() %>% as_tibble() %>% mutate(topic=paste('Topic',1:5)) %>% select(topic, everything()))
 ```
 
+
+# Bibliografía
