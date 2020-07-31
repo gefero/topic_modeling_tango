@@ -86,9 +86,24 @@ lda_list <- readRDS('../models/lda_fits_limpios.RDS')
 #map(lda_list, terms, 10)[seq(2,22,2)]
 
 lda <- lda_list[[8]]
+
 ```
 
- 
+
+```{r}
+df %>% janitor::tabyl(ritmo) %>% janitor::adorn_totals('row') %>% arrange(desc(n))
+```
+
+```{r}
+df %>% janitor::tabyl(compositor) %>% janitor::adorn_totals('row') %>% arrange(desc(n))
+```
+
+```{r}
+df %>% janitor::tabyl(decada) %>% janitor::adorn_totals('row') %>% as_tibble()
+
+```
+
+
 ## Introducción
 
 Independientemente de posiciones idealistas o materialistas al respecto, lo cierto es que buena parte de las interacciones a lo largo y a lo ancho de la estructura social, se encuentran mediadas por el lenguaje y tiene como producto una gran cantidad de "textos"", muchos de los cuales no son escritos, pero muchos otros sí.
@@ -355,7 +370,7 @@ colnames(doc_topics)<-topic_names_12_06
 
 tangos<-c('barrio reo', 'mi buenos aires querido',
           'garua',
-          'chorra', 'malena')
+          'malena')
 
 tangos_test <- doc_topics[match(tangos, df$titulo),]
 
@@ -371,7 +386,8 @@ tangos_test %>%
                 geom_bar(stat = "identity") + ylab("value") +
         geom_text(aes(label = round(value,2)), 
                   position=position_stack(vjust = 0.5),
-                  check_overlap = TRUE) 
+                  check_overlap = TRUE) +
+        theme_minimal()
 #+
 #        labs(title='Composición de tópicos según tangos, 1900-2010',
 #             subtitle='Media de la composición de las letras de tango')
@@ -443,7 +459,8 @@ aggregate(doc_topics,
                   position=position_stack(vjust = 0.5),
                   check_overlap = TRUE) +
         coord_flip() +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        theme_minimal()
 ```
 
 Así, por ejemplo, los temas predominantes de Cadícamo parecen ser el lunfardo y las emociones negativas. Esto contrasta con Homero Manzi, quien parece utilizar en mayor medida las imágenes climáticas (y también las emociones negativas). 
@@ -473,7 +490,8 @@ aggregate(doc_topics,
         ggplot(., aes(item1, item2, fill= distance)) + 
         geom_tile() +
         scale_fill_viridis_c() +
-        theme(axis.text.x = element_text(angle=90))
+        theme(axis.text.x = element_text(angle=90)) +
+        theme_minimal()
 
 ```
 
