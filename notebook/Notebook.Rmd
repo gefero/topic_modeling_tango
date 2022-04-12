@@ -262,8 +262,7 @@ Puede verse que existen ciertas dependencias en el modelo: por ejemplo, la asign
 
 Entonces, el problema es poder estimar la estructura de tópicos a partir de los documentos observados. De esta forma, es posible formular el problema a partir del llamado “posterior”:
 
-$$p(\beta_{1:K}, \theta_{1:D}, z_{1:D} | w_{1:D}) = \frac{p(\beta_{1:K}, \theta_{1:D}, z_{1:D}, w_{1:D})}{p(w_{1:D})}
-$$
+$$p(\beta_{1:K}, \theta_{1:D}, z_{1:D} | w_{1:D}) = \frac{p(\beta_{1:K}, \theta_{1:D}, z_{1:D}, w_{1:D})}{p(w_{1:D})}$$
 
 El numerador es la distribución conjunta de todas las variables aleatorias del modelo y puede ser calcuado de forma simple. El problema reside en el denominador: la probabilidad marginal de las observaciones, es decir, la probabilidad de observar el corpus dado bajo cualquier modelo de tópicos. Si bien, debería  (en teoría) poder calcularse la agregación de todas las distrbuciones de tópicos para cada una de las posibles estructuras de tópicos, lo cierto es que se trata de un problema computacionalmente intratable. Por ello, al igual que en muchos problemas dentro del marco bayesiano, es necesario recurrir a aproximaciones numéricas^[No es el objetivo de este trabajo desarrollar los métodos de inferencia y aproximación. En general, se basan en métodos de inferencia variacional o en métodos basados en Markov Chain Montecarlo. Para un mayor desarrollo puede verse [@asuncion].].
 
@@ -323,6 +322,10 @@ for (t in 1:12){
 topic_terms <- do.call(rbind, topic_terms)
 
 names(topic_names_12_06)<-1:12
+```
+
+
+```{r fig.height=12, fig.width=12}
 
 topic_terms %>%
         ggplot(aes(label=term, size=prob, color=prob)) +
@@ -331,6 +334,8 @@ topic_terms %>%
         scale_fill_viridis_c() +
         facet_wrap(~topic, labeller= as_labeller(topic_names_12_06)) + 
         theme_minimal()
+
+ggsave('./imgs_relmis/g1.jpg', dpi=300, bg="white")
 ```
 
 
@@ -387,10 +392,13 @@ tangos_test %>%
         geom_text(aes(label = round(value,2)), 
                   position=position_stack(vjust = 0.5),
                   check_overlap = TRUE) +
+        labs(fill="Tópico") +
         theme_minimal()
 #+
 #        labs(title='Composición de tópicos según tangos, 1900-2010',
 #             subtitle='Media de la composición de las letras de tango')
+
+ggsave('./imgs_relmis/g2.jpg', dpi=300, bg="white")
 ```
 
 Así, un tango como "Barrio reo", que habla de los gratos recuerdos del cantor al retornar a su barrio y de la tristeza que le produce el encuentro con su deterioro ("Hoy te encuentro envejecido"), muestra valores altos en los tópicos _emociones positivas_, _emociones negativas_ y en el que habla sobre el _tango y arrabal_.
@@ -417,8 +425,11 @@ df %>%
                 #geom_point(aes(x=ano, y=value, color=topic)) +
                 geom_smooth(aes(x=ano, y=value, color=topic)) +
                 facet_wrap(~topic) +
+                labs(x="Año", y="Valor") +
                 theme_minimal() +
-                theme(legend.position = 'none')
+                theme(legend.position = 'none') 
+
+ggsave('./imgs_relmis/g3.jpg', dpi=300, bg="white")
 ```
 
 
@@ -459,8 +470,11 @@ aggregate(doc_topics,
                   position=position_stack(vjust = 0.5),
                   check_overlap = TRUE) +
         coord_flip() +
+        labs(x="Autor", y="Valor", fill="Tópico") +
         theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
         theme_minimal()
+
+ggsave('./imgs_relmis/g4.jpg', dpi=300, bg="white")
 ```
 
 Así, por ejemplo, los temas predominantes de Cadícamo parecen ser el lunfardo y las emociones negativas. Esto contrasta con Homero Manzi, quien parece utilizar en mayor medida las imágenes climáticas (y también las emociones negativas). 
@@ -470,7 +484,7 @@ Finalmente, podría pensarse en construir una matriz de distancias para cada aut
 
 **Gráfico 6. Distancias en la composición de tópicos según autores, 1900-2010. Media de la composición de las letras de tango**
 
-```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=8, fig.width=12, message=FALSE, warning=FALSE}
 autores <- df %>% 
         group_by(compositor) %>%
         summarise(n=n()) %>% 
@@ -490,8 +504,12 @@ aggregate(doc_topics,
         ggplot(., aes(item1, item2, fill= distance)) + 
         geom_tile() +
         scale_fill_viridis_c() +
-        theme(axis.text.x = element_text(angle=90)) +
-        theme_minimal()
+        labs(x="Autor", y="Autor", fill="Distancia") +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle=45, vjust = 0.5, hjust=0.5))
+
+
+ggsave('./imgs_relmis/g5.jpg', dpi=300, bg="white")
 
 ```
 
